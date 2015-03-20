@@ -1,4 +1,8 @@
-# 本来是寒假应该看的书[OT]
+# 
+layout       | title                 | catagory    | tags     | keywords       | discription|
+------------ | -------------         | ------------|--------- |--------------- |------------|
+post		 | 本来是寒假应该看的书[OT]  | 读书        | books    | books, off-tech |           |
+
 ![Smaller icon](assets/定位)      
 #####这是我同事提到的， 一本关于市场营销的最经典的图书之一。 <br /> <br />         
 
