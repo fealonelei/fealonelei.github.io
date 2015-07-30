@@ -1,7 +1,7 @@
 ---
 layout: post
-title: 第一篇博客
-category: 生活
+title: 暑假读书
+category: 读书
 tags:
 keywords:
 description:
