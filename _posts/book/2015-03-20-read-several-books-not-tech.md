@@ -1,7 +1,11 @@
-
-layout       | title                 | catagory    | tags     | keywords       | discription|
------------- | -------------         | ------------|--------- |--------------- |------------|
-post		 | 本来是寒假应该看的书      | 读书        | books    | books, off-tech | 可惜没时间  |
+---
+layout: post
+title: 第一篇博客
+category: 生活
+tags:
+keywords:
+description:
+---
 
    
 #####这是我同事提到的， 一本关于市场营销的最经典的图书之一。       
