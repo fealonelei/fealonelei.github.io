@@ -11,12 +11,17 @@ description:
 最近想学习 Go develop，所以想在 MAC 上搭一个 Go 开发环境。万万没想到啊，MAC 上的 Vim 还是 7.3，所以，首先第一件事就是升级到 7.4，因为目测很多插件需要神马 Lua，比方说 neocomplete.
 
 ---
+
 ## 使用 Homebrew ?
+
 额，理论上讲这是最简单的。
+
 ```
 brew install vim --with-lua
 ``` 
+
 整个世界本来就因此而清净了。可是万万没想到啊，我的 MAC OSX 10.10 如此调皮
+
 ```
 qmhysadeiMac:~ Bob$ brew install vim --with-lua
 ==> Downloading https://mirrors.kernel.org/debian/pool/main/v/vim/vim_7.4.712.orig.tar.gz
@@ -34,10 +39,13 @@ READ THIS: https://git.io/brew-troubleshooting
 These open issues may also help:
 vim  7.4.488 build fails if Homebrew ruby is installed but /usr/bin/ruby comes first in PATH (https://github.com/Homebrew/homebrew/issues/33705)
 ```
+
 它就这样报错了，无缘无故的报错了。而且，`我不知道怎么去修改`，这尼玛才是重点。
 
 ---
+
 ## 编译安装 Vim with Lua
+
 在不能使用 Homebrew 的时候也不要迷茫。毕竟我们都是用 *nix 的人。那就自己动手编译咯。
 
 #### 1. 下载 Vim 源码
@@ -47,11 +55,15 @@ vim  7.4.488 build fails if Homebrew ruby is installed but /usr/bin/ruby comes f
 
 `注意：`
 首先要修改一下源码，在 src 目录下找到 `os_unix.h`, 然后在适当的位置加上
+
 ```
 #include <AvailabilityMacros.h>  
 ```
+
 #### 2.安装 Lua
+
 使用 brew 安装就好了嘛。
+
 ```
 brew install lua
 ```
@@ -61,6 +73,7 @@ brew install lua
 `[option]`
 根据需要是否安装 LuaJit, 其实我不知道这个是干嘛用的。
 首先去下载 http://luajit.org/download/LuaJIT-2.0.4.tar.gz , 然后解压
+
 ```
 tar -xzvf LuaJIT-2.0.4.tar.gz
 cd LuaJIT-2.0.4
@@ -68,7 +81,9 @@ cd LuaJIT-2.0.4
 sudo make
 sudo make install
 ```
+
 #### 3.编译 Vim
+
 > * 终端进入 Vim 的解压目录
 > * 终端执行：
 ```
@@ -78,11 +93,14 @@ sudo make install
 > * 终端: `sudo make install`
 
 #### 4. 额外的收尾工作
+
 添加vim命令的别名，如果是bash（默认shell）
 在.bash_profile中添加一行
+
 ```
 alias vim=‘/usr/local/bin/vim'
 ```
+
 然后在终端中执行
 `source ~/.bash_profile`
 
@@ -93,6 +111,7 @@ alias vim=‘/usr/local/bin/vim'
 #### 5. 查看最终成果
 如果幸运的话，现在 Vim with lua 已经安装成功
 终端 `:vim --version`
+
 ```
 qmhysadeiMac:go Bob$ vim --version
 VIM - Vi IMproved 7.4 (2013 Aug 10, compiled Aug 14 2015 12:32:05)
@@ -136,6 +155,7 @@ Huge version without GUI.  Features included (+) or not (-):
 Compilation: gcc -c -I. -Iproto -DHAVE_CONFIG_H   -DMACOS_X_UNIX  -g -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1      
 Linking: gcc   -L. -L/usr/local/lib  -L/usr/local/lib -o vim        -lm -lncurses  -liconv -framework Cocoa  -pagezero_size 10000 -image_base 100000000 -L/usr/local/lib -lluajit-5.1 -fstack-protector  -L/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE -lperl -framework Python   -lruby.2.0.0 -lobjc   
 ```
+
 注意到 lua 前面是 (+) 说明 lua 安装成功。
 
 ---
