@@ -159,10 +159,12 @@ Linking: gcc   -L. -L/usr/local/lib  -L/usr/local/lib -o vim        -lm -lncurse
 注意到 lua 前面是 (+) 说明 lua 安装成功。
 
 ---
+
 ### 参考
-[1]  http://blog.csdn.net/u011542994/article/details/39058779                             
-[2]  http://wuxu92.github.io/z-compile-vim-with-lua-support-in-centos-7/                         
-[3]  http://www.cnblogs.com/spch2008/p/4593370.html   
+
+[1]  <http://blog.csdn.net/u011542994/article/details/39058779>                             
+[2]  <http://wuxu92.github.io/z-compile-vim-with-lua-support-in-centos-7/>                         
+[3]  <http://www.cnblogs.com/spch2008/p/4593370.html>   
 
 
 
