@@ -3,7 +3,7 @@ layout: post
 title: MAC OSX 编译 Vim with lua
 category: 工具
 tags: Vim Lua 
-keywords:
+keywords: Vim with Lua, mac osx compile vim with lua
 description:
 ---
 
