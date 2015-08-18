@@ -9,16 +9,19 @@ description:
 
 ## 前言
 Vim 是极具生产力的工具。我个人选择 Vim 作为 Go dev 的工具。
-本文不讨论 Which one is 世界上最好的编辑工具或者 ~~PHP 是不是世界上最好的语言~~。
+本文不讨论 Which one is 世界上最好的编辑工具或者 ~~PHP 是不是世界上最好的语言~~ 。
 我主要是对自己配置 Vim for Go 的一个总结(**OS: MAC OSX 10.10**)。
 
-如果对 Vim 操作一无所知，请先去看一下左耳朵耗子叔写的[简明 Vim 练级攻略](http://coolshell.cn/articles/5426.html)，并且及时使用一些 ~~404~~搜索引擎补充知识。
+如果对 Vim 操作一无所知，请先去看一下左耳朵耗子叔写的[简明 Vim 练级攻略](http://coolshell.cn/articles/5426.html)，并且及时使用一些 ~~404~~ 搜索引擎补充知识。
 在阅读本文之前，请确定：
+
 > * 有基本 Vim 知识
 > * 懂得基本 Terminal 操作
 > * 有一颗往死了折腾自己的心
 > * 有一颗往死了折腾自己的心
 > * 有一颗往死了折腾自己的心
+
+---
 
 ## 配置 basic vim
 Well，we need Vim with lua. If Using OSX, here is a [artical](http://fealonelei.github.io/2015/08/14/MAC-OSX-%E7%BC%96%E8%AF%91-Vim-with-lua.html) for consideration.
@@ -56,7 +59,7 @@ Using terminal:
 git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go
 ```
 
-add above to .vimrc:
+add below to .vimrc:
 
 ```
 syntax enable              
@@ -72,6 +75,7 @@ If you wanna config Vim-Go more flexible, find more info on [GitHub Vim-Go](http
 
 ## Install gotags && tagbar
 Since I am using mac, Homebrew will offer great convenience. 
+
 #### 1. install ctags
 Using terminal:
 
@@ -142,6 +146,7 @@ nmap <F8> :TagbarToggle<CR>
 ---
 
 ## Install neocomplete 实时补全
+
 #### 1.Using terminal:
 
 ```
@@ -163,5 +168,5 @@ why not install more helpful and productive plugin, such as Nerdtree, Nerdcommen
 explore more. have fun.
 
 For 天朝程序员 <br />
-https://github.com/yangyangwithgnu/use_vim_as_ide 
+<https://github.com/yangyangwithgnu/use_vim_as_ide> 
 
