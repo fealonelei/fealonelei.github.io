@@ -134,7 +134,7 @@ let g:tagbar_type_go = {
 Using terminal:
 
 ```
-git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/tagbar
+git clone https://github.com/majutsushi/tagbar.git ~/.vim/bundle/tagbar
 ```
 
 then, configure .vimrc:
@@ -150,7 +150,7 @@ nmap <F8> :TagbarToggle<CR>
 #### 1.Using terminal:
 
 ```
-git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/neocomplete.vim
+git clone https://github.com/Shougo/neocomplete.vim.git ~/.vim/bundle/neocomplete.vim
 ```
 
 #### 2. **编辑 .vimrc:**
