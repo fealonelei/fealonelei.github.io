@@ -7,7 +7,7 @@ keywords: Swift, Protocols, Unit test
 description:
 ---
 
-
+## 前言
 ***
 原文地址：<http://blog.eliperkins.me/mocks-in-swift-via-protocols>
 ***
@@ -19,7 +19,7 @@ description:
 
 ***
 
-### Mocking `UIApplication`
+## Mocking `UIApplication`
 
 举个🌰， `UIApplication` 是一个比较难做模拟测试的 class，这次让我们试试。<br /> <br />
 在这个🌰中，让我们试试一个操作(handle) push notifications 的结构体(原文：a type). <br />
@@ -57,14 +57,14 @@ description:
 <br />
 ***
 
-### 测试出了什么问题？
+## 测试出了什么问题？
 让我们回退一步，看看是什么原因使我们的代码无法测试。看样子我们做错了几个地方。我们不 own `UIApplication` 或者它的 `sharedApplication()`，所以将我们的函数集成进去有点困难。再就是，在单元测试中，我们没法知道调用 `UIApplication.sharedApplication().registerUserNotificationSettings(_:)` 是否有用。我们不能知道屏幕是否真有一个 alert view.  <br />
 
 我们到底要测试什么？测试 UIKit？那是苹果工程师的活。我们真需要测试的只是 struct(即：PushNotificationController)询问用户允许注册推送通知，在这种情况下，相关的就是 `UIApplication` 了。
 <br /> <br />
 ***
 
-### Protocol-Oriented Programming
+## Protocol-Oriented Programming
 
 我们可以灵活一点不？怎么验证 struct(即：PushNotificationController)的功能呢？<br />
 **我觉得 protocols 是 Swift 中最佳的模拟测试的方式**
@@ -105,7 +105,7 @@ description:
 <br />
 ***
 
-### 用 `PushNotificationRegistrar` hooking up `UIApplication`
+## 用 `PushNotificationRegistrar` hooking up `UIApplication`
 既然不能控制 `UIApplication.sharedApplication()` , 那么怎么解决单元测试的问题呢？这就要用到 Swift 里非常优雅的部分了。
 我们可以让 `UIApplication` conform to `PushNotificationRegistrar`
 
@@ -122,7 +122,7 @@ description:
 <br />
 ***
 
-### 通过 Protocols 模拟测试
+## 通过 Protocols 模拟测试
 好吧，写个测试。不用 `UIApplication` 了，我们来伪造一个注册过程。
 
 	import XCTest
@@ -147,7 +147,7 @@ description:
 <br /> <br />
 ***
 
-# Crusty 会怎么做？
+## Crusty 会怎么做？
 通过 Protocols 来做 Swift 的模拟测试不仅仅是因为 `UIApplication` 里的方法测试比较困难， Protocols 做的更好。Protocols 能够在整个工程各个组成部分之前创建高清晰的界限(原文：Protocols contribute greatly in creating boundaries around pieces of your architecture)，并且能让软件不会变得 too crusty. <br />
 这对 Swift 不新鲜，但是现在用这种模式来编程的还较少。 Protocols extensions with default implementions 将极大地释放 Swift 2 的生产力。 <br />
 
