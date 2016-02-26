@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Swift 通过 Protocols 做模拟测试
-category: iOS
+category: 开发
 tags: Swift Protocols
 keywords: Swift, Protocols, Unit test
 description:
