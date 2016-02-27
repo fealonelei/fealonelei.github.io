@@ -55,6 +55,7 @@ description:
 	}
 
 <br />
+
 ***
 
 ## 测试出了什么问题？
@@ -62,6 +63,7 @@ description:
 
 我们到底要测试什么？测试 UIKit？那是苹果工程师的活。我们真需要测试的只是 struct(即：PushNotificationController)询问用户允许注册推送通知，在这种情况下，相关的就是 `UIApplication` 了。
 <br /> <br />
+
 ***
 
 ## Protocol-Oriented Programming
@@ -103,6 +105,7 @@ description:
 
 漂亮！ `UIApplication.sharedApplication()` 已经完全被移除了，更少的全局变量给我们单元测试更多的回旋余地。
 <br />
+
 ***
 
 ## 用 `PushNotificationRegistrar` hooking up `UIApplication`
@@ -120,6 +123,7 @@ description:
 	    }
 	}	
 <br />
+
 ***
 
 ## 通过 Protocols 模拟测试
@@ -144,7 +148,8 @@ description:
 	}
 
 就这样，我们就创建了一个测试。这个测试在 application 设置了一个用户后，application 将注册推送通知。
-<br /> <br />
+<br />
+
 ***
 
 ## Crusty 会怎么做？
