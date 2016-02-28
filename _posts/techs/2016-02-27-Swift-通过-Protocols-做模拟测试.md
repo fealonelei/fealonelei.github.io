@@ -10,6 +10,7 @@ description:
 ## 前言
 ***
 原文地址：<http://blog.eliperkins.me/mocks-in-swift-via-protocols>
+
 ***
 
 
