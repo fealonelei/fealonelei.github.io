@@ -14,38 +14,38 @@ description:
 
 >我将展示如何用 48 行代码构建一个 C++ 高性能异步服务器。
 
-我在之前的文章里提到我能够用 Facebook 的 [Wangle](https://github.com/facebook/wangle) 在一天内构建一个数据库引擎的原型。这篇文章将讲讲我怎么做到。在本文结尾，你能够完成一个基于 wangle 的高性能 C++ 服务器。这篇文章也将成为 Wangle 的 README.md 里面的教程。<br />
+我在之前的文章里提到我能够用 Facebook 的 [Wangle](https://github.com/facebook/wangle) 在一天内构建一个数据库引擎的原型。这篇文章将讲讲我怎么做到。在本文结尾，你能够完成一个基于 wangle 的高性能 C++ 服务器。这篇文章也将成为 Wangle 的 README.md 里面的教程。<br /> <br />
 我将展示怎么使用 modern C++ 写一个 echo server，（echo server）在分布式系统中相当于 “hello world”. 服务器响应每条 message 的方式是将该 message 原封返回。我们也将写一个客户端来向 echo server 发送 messages. 可以在[这里](https://github.com/facebook/wangle/tree/master/wangle/example/echo)找到源代码。<br />
 Wangle 是构建异步，事件驱动的 modern C++ 服务的 client/server 应用框架。 Wangle 的基本抽象是 _Pipeline_ . 一旦完全理解了这种抽象，你讲能够写出各种复杂的 modern C++ 服务。另一个重要的抽象是 _Service_ , Service 是 pipeline 的高级版本。但是，本文不讨论 Service. <br />
 
 ***
 
 ## Pipeline 
-Pipeline 是 Wangle 里最重要的也是最强大的抽象。Pipeline 为自定义 requests 和 responses 如何被 Services 处理提供了无与伦比的灵活性。 <br />
-Pipeline 是一系列的 request/response handlers. 我认为这里的 Pipeline 就像制造业工厂的生产线一样。在一条按顺序工作的生产线上，每个工人收到一个物件，完成一个工序，把它给到下一个工人那里，直到完成制造。这个比喻其实不恰当，它只能朝一个方向前进而不能反向将制成品变回原材料，而 _Pipeline_ 可以这么反方向做。 <br />
+Pipeline 是 Wangle 里最重要的也是最强大的抽象。Pipeline 为自定义 requests 和 responses 如何被 Services 处理提供了无与伦比的灵活性。 <br /> <br />
+Pipeline 是一系列的 request/response handlers. 我认为这里的 Pipeline 就像制造业工厂的生产线一样。在一条按顺序工作的生产线上，每个工人收到一个物件，完成一个工序，把它给到下一个工人那里，直到完成制造。这个比喻其实不恰当，它只能朝一个方向前进而不能反向将制成品变回原材料，而 _Pipeline_ 可以这么反方向做。 <br /> <br />
 一个 Wangle handler 可以处理下游（处理响应）也可以处理上游（处理请求）事件。只要将所有的 handlers 连在一起，那就可以非常灵活地将原始数据流（raw data stream）转换成需要的信息类型（message type， 比如 class）或者反方向，将需要的信息类型转换成原始数据流。 <br />
 举个🌰， 在 echo service 的 pipeline 里，我们可以建立一个包含下面几个 handler 的 pipeline.         
 
-1. Handler 1
+1. Handler 1  <br />    
 上游（Upstream）：从 socket 里接收一个原始的二进制数据，将其读进一个零拷贝字节的缓冲器，然后发送到 handler 2.    <br />
 下游（Downstream）：接收零拷贝字节的缓冲器的数据，将其内容从 socket 发送。
 
-2. Handler 2
+2. Handler 2  <br />
 上游：接收来自 handler 1 的零拷贝字节的缓冲器，将字节缓冲器解码成 string，并将 string 发送到 handler 3. <br />
 下游：接收来自 handler 3 的 string， 将 std::string 编码成零拷贝字节的缓冲器，并发送到 handler 1.
 
-3. Handler 3 
-上游：接收来自 handler 2 的 string，并通过 Pipeline 发送回客户端。这里 handler 3 将 string 发送回 handler 2.
+3. Handler 3  <br />
+上游：接收来自 handler 2 的 string，并通过 Pipeline 发送回客户端。这里 handler 3 将 string 发送回 handler 2. <br />
 下游：从上游接收 std::string 并传递给 handler 2.
 
-这里有一个重要的地方就是每一个 handler 能且只能做一件事。如果你有一个 handler 处理多于一个函数，像直接将原始数据流解码成 string，那么你需要将其分解成几个 handler. 这对于最大化可维护性和灵活性很重要。 <br /> 
-handler 是**线程不安全**的，所以千万不要加任何不由 mutex/atomic lock 等守护的共享态。如果想要线程安全的容器，请使用 [Folly](https://github.com/facebook/folly) 无锁数据结构，它是 Wangle 的依赖，而且速度超快，引入它也是很简单的。 <br />
+这里有一个重要的地方就是每一个 handler 能且只能做一件事。如果你有一个 handler 处理多于一个函数，像直接将原始数据流解码成 string，那么你需要将其分解成几个 handler. 这对于最大化可维护性和灵活性很重要。 <br /> <br />
+handler 是**线程不安全**的，所以千万不要加任何不由 mutex/atomic lock 等守护的共享态。如果想要线程安全的容器，请使用 [Folly](https://github.com/facebook/folly) 无锁数据结构，它是 Wangle 的依赖，而且速度超快，引入它也是很简单的。 <br /> <br />
 现在不要担心 --- 当看到实际代码时，它自然就清晰多了。
 
 ***
 
 ## echo server 
-下面展示怎么用 Wangle 来写第一个 C++ echo server. 请先安装 Wangle. 不过 Wangle 不能在 OSX 上 build，所以我推荐使用带图形界面的 Ubuntu 14.04 来安装 Wangle. <br />
+下面展示怎么用 Wangle 来写第一个 C++ echo server. 请先安装 Wangle. 不过 Wangle 不能在 OSX 上 build，所以我推荐使用带图形界面的 Ubuntu 14.04 来安装 Wangle. <br /> <br />
 这里是 echo handler，接收 string，通过 stdout 打印，并在 Pipeline 里发送回下游。加入一个行定界符很重要，因为我们的 Pipeline 将使用行解码器（line decoder）--- 将字节缓冲器分解成行分割的字节缓冲器。
 
 **EchoHandler.cpp** 
@@ -78,23 +78,23 @@ handler 是**线程不安全**的，所以千万不要加任何不由 mutex/atom
 	  }
 	};
 
-**一定要严格按照上面的顺序来将几个 handler 加入到 pipeline** <br />
+**一定要严格按照上面的顺序来将几个 handler 加入到 pipeline** <br /> <br />
 这里的 Pipeline 有 4 个 handlers ：
 
-1. AsyncSocketHandler:
-上游：从 socket 中读取原始数据流，并将其变成零拷贝字节缓冲器。
+1. AsyncSocketHandler: <br />
+上游：从 socket 中读取原始数据流，并将其变成零拷贝字节缓冲器。<br />
 下游：将零拷贝字节缓冲器的内容从下属的 socket 发出。
 
-2. LineBasedFrameDecoder:
-上游：接收零拷贝字节缓冲器，并在行尾分割。
+2. LineBasedFrameDecoder: <br />
+上游：接收零拷贝字节缓冲器，并在行尾分割。 <br />
 上游：将零拷贝字节缓冲器发送给 _AsyncSocketHandler_
 
-3. StringCodec:
-上游：接收零拷贝字节缓冲器并解码成 std::string 发送给 EchoHandler.
+3. StringCodec:  <br />
+上游：接收零拷贝字节缓冲器并解码成 std::string 发送给 EchoHandler.  <br />
 下游：接收 std::string 并编码成零拷贝字节缓冲器，发送给 LineBasedFrameDecoder.
 
-4. EchoHandler:
-上游：接收 std::stirng 并将其写入到 pipeline，Pipeline 将把 message 发送到下游。
+4. EchoHandler:  <br />
+上游：接收 std::stirng 并将其写入到 pipeline，Pipeline 将把 message 发送到下游。  <br />
 下游：接收 std::string 并转发给 StringCodec.
 
 那么现在要做就是将 Pipeline factory 塞进 _ServerBootStrap_， 好了。绑定端口并等它停止。
@@ -176,7 +176,7 @@ echo client 和 echo server 的代码很相似。
 	  }
 	};
 
-这里重写 _readException_ 和 _readEOF_ 函数。还有一些其他的函数可以重写。如果需要处理特定的事件，重写相应的虚函数就行了。 <br />
+这里重写 _readException_ 和 _readEOF_ 函数。还有一些其他的函数可以重写。如果需要处理特定的事件，重写相应的虚函数就行了。 <br />  <br />
 这里是 client 的 Pipeline factory. 这里和 EventBaseHandler 分离出的 server 端的 pipeline factory 基本一致， EventBaseHandler 从事件循环线程中处理写入数据。
 
 **EchoClientPipeline.cpp**
