@@ -7,8 +7,6 @@ keywords: heap, stack
 description:
 ---
 
-## The heap vs the stack [swift]
-
 当创建像 class 一样的引用类型时，系统将真实值存储在内存里叫做 `heap` 的区域，而值类型的像 struct 等存储在 `stack` 区域。
 heap 和 stack 在任何可执行的程序中都扮演着必须的角色。对 heap 和 stack 是什么和他们怎么工作有一个基本的理解，有助于你理清 class 和 structure 之间的功能性区别。
 
