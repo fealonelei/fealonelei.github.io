@@ -8,6 +8,7 @@ description:
 ---
 
 引言 **串口，最常用的调试工具**
+
 stm32H7 UART/USART 功能丰富，本文只对 stm32H7 串口的使用及 HAL 代码进行浅浅的分析。
 
 ## stm32H7 串口基本功能使用
@@ -16,11 +17,13 @@ stm32H7 UART/USART 功能丰富，本文只对 stm32H7 串口的使用及 HAL �
 
 > 1. 配置串口参数；
   - 串口参数：波特率、数据位、停止位、校验位；
+
 ```c {.line-numbers}
     UART_HandleTypeDef huart3;
     HAL_UART_Init(&huart3);
 
 ```
+
 > 2. 配置串口 Msp；
 
 ```c {.line-numbers}
@@ -72,6 +75,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 > - ~~通过轮询方式收发数据；~~
 
 > - 通过中断方式收发数据；
+
 ```C
     // 中断发送
     HAL_UART_Transmit_IT(&huart3, (uint8_t *)uart_tx_buf, 1);
@@ -88,10 +92,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
 ```
 
-
 ## stm32 串口 DMA 使用
 
 > 0. 配置 DMA（如果需要）
+
 ```c
 DMA_HandleTypeDef hdma_usart3_tx;
 DMA_HandleTypeDef hdma_usart3_rx;
@@ -171,6 +175,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
 }
 ```
+
 </details>
 
 #### 2. 收发收据：
@@ -178,6 +183,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 > - ~~通过轮询方式收发数据；~~
 
 > - 通过 DMA 方式收发数据；
+
 ```C
     // DMA 发送
     hal_uart_dma_transmit(&huart3, (uint8_t *)uart_tx_buf, 1, 1000);
