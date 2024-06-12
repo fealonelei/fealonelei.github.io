@@ -1,6 +1,6 @@
 ---
 layout: post
-title: stm32H7 UART HAL 代码分析
+title: stm32H7 UART 使用、HAL 代码分析和实际遇到的问题
 category: 开发
 tags: stm32H7
 keywords: stm32H7, 串口, SerialPort, DMA
