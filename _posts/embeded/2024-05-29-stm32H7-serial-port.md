@@ -33,7 +33,7 @@ stm32H7 UART/USART 功能丰富，本文只对 stm32H7 串口的使用及 HAL �
 > 1. 配置串口参数；
   - 串口参数：波特率、数据位、停止位、校验位；
 
-```C
+```c
     UART_HandleTypeDef huart3;
     HAL_UART_Init(&huart3);
 
@@ -41,7 +41,7 @@ stm32H7 UART/USART 功能丰富，本文只对 stm32H7 串口的使用及 HAL �
 
 > 2. 配置串口 Msp；
 
-```C
+```c
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -91,7 +91,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
 > - 通过中断方式收发数据；
 
-```C
+```c
     // 中断发送
     HAL_UART_Transmit_IT(&huart3, (uint8_t *)uart_tx_buf, 1);
 
@@ -132,7 +132,7 @@ static void MX_DMA_Init(void)
 > 2. 配置串口 Msp；
 <details> <summary>点击以展开完整的代码块</summary> 
 
-```C
+```c
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -199,7 +199,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
 > - 通过 DMA 方式收发数据；
 
-```C
+```c
     // DMA 发送
     hal_uart_dma_transmit(&huart3, (uint8_t *)uart_tx_buf, 1, 1000);
 
@@ -256,7 +256,7 @@ HAL_UART_IRQHandler 检查 `errorflags`,
 - 串口接收不定长数据，可以使用 `HAL_UARTEx_ReceiveToIdle_IT` 或者 `HAL_UARTEx_ReceiveToIdle_DMA` 函数，该函数会一直接收到串口接收缓冲区为空，或者接收到 IDLE 状态。
 - 开启 DMA 功能，在中断接收里处理
   
-```C
+```c
 void USART1_IRQHandler(void)
 {
     if (__HAL_UART_GET_FLAG(&g_uart1_handle, UART_FLAG_IDLE) != RESET){           //获取接收IDLE标志位是否被置位 
