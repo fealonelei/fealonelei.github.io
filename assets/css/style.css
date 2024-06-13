@@ -350,7 +350,7 @@ a {
 \*---------------------------------*/
 #post {
   height: 100%;
-  color: #2c353d;
+  color: #0d0d0d;
   font-size: 18px;
   line-height: 1.5;
   background: white;
@@ -392,7 +392,7 @@ a {
       margin: 0 auto; } }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 400; }
+  font-weight: 600; }
 
 #post__title {
   margin: 0;
@@ -407,7 +407,7 @@ h1, h2, h3, h4, h5, h6 {
 #post__content li > p {
   margin: 0; }
 #post__content a {
-  color: #7d8b99;
+  color: #01060c;
   word-break: break-all; }
   #post__content a:hover {
     text-decoration: underline; }
