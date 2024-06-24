@@ -145,11 +145,11 @@ __asm(".global __ARM_use_no_argv \n\t");    /* AC6下需要声明main函数为�
 #pragma import(__use_no_semihosting)
 ```
 
-关闭后将无法编译，报错 **Error: L6915E: Library reports error: __use_no_semihosting was requested, but _ttywrch was referenced** , 这就是为什么要 [1. retarget printf 到串口；](#1-retarget-printf-到串口) 重写 _ttywrch\_sys_exit\_sys_command_string 函数。
+关闭后将无法编译，报错 **Error: L6915E: Library reports error: __use_no_semihosting was requested, but _ttywrch was referenced** , 这就是为什么要 [1. retarget printf 到串口；](#1-retarget-printf-到串口) 重写 `_ttywrch` `_sys_exit` `_sys_command_string` 函数。
 
 **1.2 可能遇到 Error: L6200E: Symbol __stdout Multiply Defined**
 
-根据 [Arm 文档](https://developer.arm.com/documentation/ka003082/latest/)，使用 retarget 的方式可以让开发者使用 printf 等简单 IO 函数，但是当再使用 `fprintf, assert, fopen, fclose, `等复杂的 IO 函数时就会遇到上述错误。我们遇到此问题是在移植 zbar 到 stm32H7 时，zbar 有使用到 fprintf / snprintf 等函数。Arm 文档给出的解决方式是移出（复杂IO函数）的调用。显然，这种解决方案绝大多数情况下是不可接受的。
+根据 [Arm 文档](https://developer.arm.com/documentation/ka003082/latest/)，使用 retarget 的方式可以让开发者使用 printf 等简单 IO 函数，但是当再使用 `fprintf, assert, fopen, fclose, `等复杂的 IO 函数时就会遇到上述错误。我们遇到此问题是在移植 zbar 到 stm32H7 时，zbar 有使用到 fprintf / snprintf 等函数。Arm 文档给出的解决方式是移除（复杂 IO 函数）的调用。显然，这种解决方案绝大多数情况下是不可接受的。
 
 ### 2. 启用 microLib的问题
 
@@ -157,17 +157,17 @@ __asm(".global __ARM_use_no_argv \n\t");    /* AC6下需要声明main函数为�
 
 > 1、MicroLib是专为深度嵌入式应用程序而设计的。<br />
 > 2、MicroLib经过优化，比使用ARM标准库使用更少的代码和数据内存。<br />
-> 3、MicroLib被设计成在没有操作系统的情况下工作，但是这并不妨碍它与任何操作系统或RTOS一起使用，如Keil RTX。<br />
+> 3、MicroLib被设计成在没有操作系统的情况下工作，但是这并不妨碍它与任何操作系统或RTOS一起使用，如Keil RTX <br />
 > 4、MicroLib不包含文件I/O或宽字符支持。<br />
 > 5、由于MicroLib已经优化到最小化代码大小，一些函数将比ARM编译工具中可用的标准C库例程执行得更慢。<br />
 
-MDK 勾选 Use MicroLIB 以后就可以使用 printf ，sprintf 等函数了，但是 microLib 默认向 UART1 发送数据，如果想向其他串口发送数据需要做额外的工作。其次，microLib 确实优化了 hex 文件大小，但是对于整个工程来说效果有限。同时降低了运行速度，**这对于使用 stm32H7 系列芯片的产品来说，trade off 并不划算。** 如果以后有移植需求，使用 microLib 还可能带来额外的工作量。
+MDK 勾选 Use MicroLIB 以后就可以使用 printf ，sprintf 等函数了，但是 microLib 默认向 UART1 发送数据，如果想向其他串口发送数据需要做额外的工作。其次，microLib 确实优化了 hex 文件大小，但是对于整个工程来说效果有限。同时降低了运行速度，**这对于使用 stm32H7 系列芯片的产品来说，时间换空间并不划算。因为 stm32H7 内存资源丰富，并且可以通过外挂 SDRAM 扩展空间。** 如果以后有移植需求，使用 microLib 还可能带来额外的工作量。
 
 ### 3. 自定义 usart_printf/usb_printf 函数，使日志输出到串口
 
-使用自定义 printf 函数，能够有效避免重写半主机模式和使用 microLib 存在的问题，并提供最大的灵活性。
+使用自定义 printf 函数，能够有效避免重写半主机模式和使用 microLib 存在的问题，并提供**最大的灵活性**。
 
-但是，自定义输出的方式比较挑战人的开发习惯，有人更倾向于使用 printf 等函数；其次，如果使用 usb_printf usb 虚拟串口功能，移植到其他 mcu 平台时可能需要二次修改。
+但是，自定义输出的方式比较挑战人的开发习惯，有人更倾向于使用 printf 等函数，也可能工程已经大量存在使用 printf 函数；其次，如果使用 usb_printf usb 虚拟串口功能，移植到其他 mcu 平台时可能需要二次修改。
 
 ## 设计日志输出 API
 
@@ -189,7 +189,8 @@ MDK 勾选 Use MicroLIB 以后就可以使用 printf ，sprintf 等函数了，�
 #define LOGLEVEL LOGINFO
 #endif
 
-// 根据所使用的日志级别，决定相应的 log_xxx 宏定义，这里是 ST 提供的 Demo ，实际上我们可以根据需要，定义一个如 logging_format_printf 函数，输出时间、文件、函数、行号等信息
+// 根据所使用的日志级别，决定相应的 log_xxx 宏定义，这里是 ST 提供的 Demo ，
+// 实际上我们可以根据需要，定义一个如 logging_format_printf 函数，输出时间、文件、函数、行号等信息
 #if LOGLEVEL >= LOGDBG
 #define log_dbg(fmt, ...)  printf("[%05ld.%03ld][DBG  ]" fmt, HAL_GetTick()/1000, HAL_GetTick() % 1000, ##__VA_ARGS__)
 #else
@@ -241,6 +242,7 @@ void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb)
 // 外部实现函数
 static void lvgl_log_cb(const char * buf)
 {
+    // 接入外部日志输出函数
     SdkLog( "LVGL", buf );
 }
 
