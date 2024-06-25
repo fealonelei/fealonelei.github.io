@@ -300,7 +300,7 @@ void USART1_IRQHandler(void)
   ```
 
   - 魔改 linker script file 
-  - （**推荐**）调用 Arm `core_cm7.h` 提供的 API `__STATIC_FORCEINLINE void SCB_InvalidateDCache_by_Addr (void *addr, int32_t dsize)` 【实际上 [STM32CubeH7 Package](https://github.com/STMicroelectronics/STM32CubeH7) 提供的 Demo 也是采用这种方式解决缓存一致性问题】
+  - （**推荐**）调用 Arm `core_cm7.h` 提供的 API `__STATIC_FORCEINLINE void SCB_InvalidateDCache_by_Addr (void *addr, int32_t dsize)` 【实际上 [STM32CubeH7 Package](https://github.com/STMicroelectronics/STM32CubeH7) 提供的 Demo 也是采用[这种方式](https://github.com/STMicroelectronics/STM32CubeH7/blob/master/Projects/STM32H743I-EVAL/Applications/FatFs/FatFs_uSD_DMA_Standalone/Src/sd_diskio_dma.c#L174)解决缓存一致性问题】
   
   ```
       SCB_InvalidateDCache_by_Addr((uint32_t *)g_rx_buffer, USART_RX_BUFFER_SIZE);
