@@ -1,17 +1,18 @@
 ---
 layout: post
 title: 为 stm32 设计一个实用的日志输出系统
-category: 开发
-tags: stm32, Cortex-M3, Logger, 设计模式
+category: 嵌入式
+tags: stm32, Logger, 设计模式
 keywords: stm32H7, Cortex-M3, Logger, 设计模式
 description:
 ---
 
-引言：
+## 前言
 
 **不论用什么编程语言，调试过程中输出日志对提高 debug 效率都是很重要的一环。**
 本文将针对嵌入式系统（基于 stm32H7）如何做一个高效的日志输出系统做出探讨。
 
+- [前言](#前言)
 - [基本的日志 IO 输出](#基本的日志-io-输出)
   - [嵌入式开发过程中日志输出](#嵌入式开发过程中日志输出)
     - [1. retarget printf 到串口；](#1-retarget-printf-到串口)

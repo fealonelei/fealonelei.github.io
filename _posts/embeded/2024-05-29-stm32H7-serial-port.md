@@ -1,17 +1,18 @@
 ---
 layout: post
 title: stm32H7 UART 使用、HAL 代码分析和实际遇到的问题
-category: 开发
+category: 嵌入式
 tags: stm32H7
 keywords: stm32H7, 串口, SerialPort, DMA
 description:
 ---
 
-引言: 
+## 前言 
 
 **串口，最常用的调试工具**
 
 stm32H7 UART/USART 功能丰富，本文只对 stm32H7 串口的使用及 HAL 代码进行浅浅的分析。
+- [前言](#前言)
 - [stm32H7 串口基本功能使用](#stm32h7-串口基本功能使用)
     - [1. 配置 UART (通过 CubeIDE 生成省时省力)：](#1-配置-uart-通过-cubeide-生成省时省力)
     - [2. 收发收据：](#2-收发收据)
@@ -337,3 +338,17 @@ stm32H7 UART 配置正确，和外设连接都正确，但是上电后，主程�
    ```
 
 3. 【根据实际情况】配置外设上电时不发送数据（可以省电，可以解决卡死问题）；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
