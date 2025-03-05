@@ -11,7 +11,7 @@ description:
 
 stm32 提供了功能完整的 USB 模块，并且 usb host 和 device library 都很完整，如果要使用 USB 单一功能，如 CDC/MSC/HID 等，通过 stm32CubeMX 可以轻松配置
 ![stm32-cubemx-usb-device](/assets/image/stm32-cubemx-usb-device-category.png)
-但是，对于 CDC-MSC 这种复合设备，stm32CubeMX 并没有提供直接生成配置的选项。而且 stm32 并没有给出参考示例。【如果有 CDC+HID / Audio+CDC 等方向的 USB 符合设备的需求，可以参考[STM32CubeH7 Package dev/usb/composite分支](https://github.com/STMicroelectronics/STM32CubeH7/tree/dev/usb/composite/Projects/STM32H743I-EVAL/Applications/USB_Device)（太难找了，只有 st community 上有 ST employee 回复问题时提了一下，正常人谁找得到）】
+<br/>但是，对于 CDC-MSC 这种复合设备，stm32CubeMX 并没有提供直接生成配置的选项。而且 stm32 并没有给出参考示例。【如果有 CDC+HID / Audio+CDC 等方向的 USB 符合设备的需求，可以参考[STM32CubeH7 Package dev/usb/composite分支](https://github.com/STMicroelectronics/STM32CubeH7/tree/dev/usb/composite/Projects/STM32H743I-EVAL/Applications/USB_Device)（太难找了，只有 st community 上有 ST employee 回复问题时提了一下，正常人谁找得到）】
 
 
 ## 如何实现 CDC-MSC 复合设备？
@@ -32,7 +32,7 @@ stm32 提供了功能完整的 USB 模块，并且 usb host 和 device library �
 因此，本文提出一种基于当前 ST USB Device Library 的 CDC-MSC Composite 实现方式，实现足够简洁、无侵入、好理解。
 
 ### 1.建立工程
-使用 STM32CubeMX 建立两个基于 stm32L476  独立的工程，一个是 CDC 工程，一个是 MSC 工程。然后以一个工程为母版，将 CDC Class 目录和 MSC Class 目录放在 Middlewares\ST\STM32_USB_Device_Library\Class 目录下。
+使用 STM32CubeMX 建立两个基于 stm32L476  独立的工程，一个是 CDC 工程，一个是 MSC 工程。<br/>然后以一个工程为母版，将 CDC Class 目录和 MSC Class 目录放在 Middlewares\ST\STM32_USB_Device_Library\Class 目录下。
 将 CDC 工程 usbd_cdc_if.c/h 和 MSC 工程 usbd_storage.c/h 放在 Application 的目录下，将任一工程下的 usbd_conf.c/h usbd_desc.c/h 放在 Application 同一目录下。<br/>
 **将 stm32L4 Firmware Package Middlewares/ST/STM32_USB_Device_Library/Class/CompositeBuilder 下的内容放在 Middlewares\ST\STM32_USB_Device_Library\Class 目录下。** 
 
@@ -163,7 +163,7 @@ USBD_StatusTypeDef USBD_RegisterClassComposite(USBD_HandleTypeDef *pdev, USBD_Cl
     }
 ```
 它在调用 USBD_CMPSIT_AddClass() 函数之后 pdev->classId++ ，而 USBD_CDC_RegisterInterface() 和 USBD_MSC_RegisterStorage() 都是根据 classId 绑定数据的。
-假设没有 hUsbDeviceFS.classId--; hUsbDeviceFS.classId++; 那么实际的逻辑会变成
+假设没有 hUsbDeviceFS.classId--; hUsbDeviceFS.classId++; 那么实际的逻辑会变成<br/>
 | CDC      | MSC |
 | ----------- | ----------- |
 | pdev->pClass[0] = USBD_CDC_CLASS;      | pdev->pClass[1] = USBD_MSC_CLASS;             |
