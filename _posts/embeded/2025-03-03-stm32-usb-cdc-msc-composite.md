@@ -11,8 +11,9 @@ description:
 
 stm32 提供了功能完整的 USB 模块，并且 usb host 和 device library 都很完整，如果要使用 USB 单一功能，如 CDC/MSC/HID 等，通过 stm32CubeMX 可以轻松配置
 <!-- ![stm32-cubemx-usb-device](/assets/image/stm32-cubemx-usb-device-category.png) -->
-<img src="../../assets/image/stm32-cubemx-usb-device-category.png" alt="stm32-cubemx-usb-device-category" width="560" height="320">
-<br/>但是，对于 CDC-MSC 这种复合设备，stm32CubeMX 并没有提供直接生成配置的选项。而且 stm32 并没有给出参考示例。【如果有 CDC+HID / Audio+CDC 等方向的 USB 符合设备的需求，可以参考[STM32CubeH7 Package dev/usb/composite分支](https://github.com/STMicroelectronics/STM32CubeH7/tree/dev/usb/composite/Projects/STM32H743I-EVAL/Applications/USB_Device)（太难找了，只有 st community 上有 ST employee 回复问题时提了一下，正常人谁找得到）】
+<picture>
+<img src="../../assets/image/stm32-cubemx-usb-device-category.png" alt="stm32-cubemx-usb-device-category" width="560" height="320"></picture>
+<br/>但是，对于 CDC-MSC 这种复合设备，stm32CubeMX 并没有提供直接生成配置的选项。而且 stm32 并没有给出参考示例。【如果有 CDC+HID / Audio+CDC 等方向的 USB 符合设备的需求，可以参考 [STM32CubeH7 Package dev/usb/composite分支](https://github.com/STMicroelectronics/STM32CubeH7/tree/dev/usb/composite/Projects/STM32H743I-EVAL/Applications/USB_Device)（太难找了，只有 st community 上有 ST employee 回复问题时提了一下，正常人谁找得到）】
 
 
 ## 如何实现 CDC-MSC 复合设备？
@@ -168,9 +169,10 @@ USBD_StatusTypeDef USBD_RegisterClassComposite(USBD_HandleTypeDef *pdev, USBD_Cl
     }
 ```
 它在调用 USBD_CMPSIT_AddClass() 函数之后 pdev->classId++ ，而 USBD_CDC_RegisterInterface() 和 USBD_MSC_RegisterStorage() 都是根据 classId 绑定数据的。
-假设没有 hUsbDeviceFS.classId--; hUsbDeviceFS.classId++; 那么实际的逻辑会变成<br/>
+假设没有 hUsbDeviceFS.classId--; hUsbDeviceFS.classId++; 那么实际的逻辑会变成 <br/>
+
 | CDC                                                                  | MSC                                                                 |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| --- | --- |
 | pdev->pClass[0] = USBD_CDC_CLASS;                                    | pdev->pClass[1] = USBD_MSC_CLASS;                                   |
 | pdev->tclasslist[0].EpAdd = CDC_EpAdd_Inst1;                         | pdev->tclasslist[1].EpAdd = MSC_EpAdress;                           |
 | (void)USBD_CMPSIT_AddClass(pdev, USBD_CDC_CLASS, CLASS_TYPE_CDC, 0); | (void)USBD_CMPSIT_AddClass(pdev,USBD_MSC_CLASS, CLASS_TYPE_MSC, 0); |
@@ -197,7 +199,7 @@ if (USBD_CMPSIT_SetClassID(&hUsbDeviceFS, CLASS_TYPE_MSC, 0) != 0xFF)
 
 然而，如 2.4 所介绍，USBD_StatusTypeDef USBD_LL_Init() 函数的修改出现了错误，导致 MSC 接口异常，连接 Windows PC 后，看到的如下：
 <!-- ![usb-cdc-msc-wrong](/assets/image/usb-cdc-msc-wrong.png) <br> -->
-<img src="../../assets/image/usb-cdc-msc-wrong.png" alt="usb-cdc-msc-wrong" width="324" height="460">
+<img src="/assets/image/usb-cdc-msc-wrong.png" alt="usb-cdc-msc-wrong" width="324" height="460">
 
 那么，如何排查问题呢？
 
@@ -205,7 +207,7 @@ if (USBD_CMPSIT_SetClassID(&hUsbDeviceFS, CLASS_TYPE_MSC, 0) != 0xFF)
 ### 1. 代码分析，问题出现在哪一层？
 ST USB library 接入 MSC 设备时的结构如图
 <!-- ![usb-msc-st-structure](/assets/image/usbd_storage_if_for_MSC.png) -->
-<img src="../../assets/image/usbd_storage_if_for_MSC.png" alt="usbd_storage_if_for_MSC" width="404" height="166">
+<img src="/assets/image/usbd_storage_if_for_MSC.png" alt="usbd_storage_if_for_MSC" width="404" height="166">
 
 根据“2.4初始化 USB” `void MX_USB_DEVICE_Init(void)`，MSC 初始化分4步：
 1. 初始化USBD内核
@@ -240,7 +242,7 @@ USBD_StorageTypeDef USBD_DISK_fops = {
 
 对于 Windows USB 发出的 SCSI Inquiry 命令，MSC 单独设备回复：
 <!-- ![wireshark-usb-right](/assets/image/wireshark-usb-right.png) <br/> -->
-<img src="../../assets/image/wireshark-usb-right.png" alt="wireshark-usb-right" width="512" height="306">
+<img src="/assets/image/wireshark-usb-right.png" alt="wireshark-usb-right" width="512" height="306">
 
 而 MSC+CDC 复合设备的回复：
 <!-- ![wireshark-usb-wrong](/assets/image/wireshark-usb-wrong.png) <br/> -->
@@ -265,7 +267,7 @@ USBD_StorageTypeDef USBD_DISK_fops = {
 ### 5. 修改，编译下载验证
 修改后，编译下载，验证通过，CDC 能正常模拟串口通信，MSC 存储设备正常，问题解决。<br/>
 <!-- ![usb-cdc-msc-good](/assets/image/usb-cdc-msc-good.png) <br/> -->
-<img src="../../assets/image/usb-cdc-msc-good.png" alt="usb-cdc-msc-good" width="360" height="408">
+<img src="/assets/image/usb-cdc-msc-good.png" alt="usb-cdc-msc-good" width="360" height="408">
 <br/>
 <!-- ![this-compute-demostration](/assets/image/this-compute-demostration.png) <br/> -->
 <img src="../../assets/image/this-compute-demostration.png" alt="this-compute-demostration" width="384" height="288">
