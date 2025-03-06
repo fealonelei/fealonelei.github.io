@@ -11,9 +11,24 @@ description:
 
 stm32 提供了功能完整的 USB 模块，并且 usb host 和 device library 都很完整，如果要使用 USB 单一功能，如 CDC/MSC/HID 等，通过 stm32CubeMX 可以轻松配置
 <!-- ![stm32-cubemx-usb-device](/assets/image/stm32-cubemx-usb-device-category.png) -->
-<picture>
-<img src="../../assets/image/stm32-cubemx-usb-device-category.png" alt="stm32-cubemx-usb-device-category" width="560" height="320"></picture>
+<br/><img src="/assets/image/stm32-cubemx-usb-device-category.png" alt="stm32-cubemx-usb-device-category" width="560" height="320">
 <br/>但是，对于 CDC-MSC 这种复合设备，stm32CubeMX 并没有提供直接生成配置的选项。而且 stm32 并没有给出参考示例。【如果有 CDC+HID / Audio+CDC 等方向的 USB 符合设备的需求，可以参考 [STM32CubeH7 Package dev/usb/composite分支](https://github.com/STMicroelectronics/STM32CubeH7/tree/dev/usb/composite/Projects/STM32H743I-EVAL/Applications/USB_Device)（太难找了，只有 st community 上有 ST employee 回复问题时提了一下，正常人谁找得到）】
+
+- [前言](#前言)
+- [如何实现 CDC-MSC 复合设备？](#如何实现-cdc-msc-复合设备)
+  - [1. 建立工程](#1-建立工程)
+  - [2. 修改设备描述符、配置描述符、接口描述符](#2-修改设备描述符配置描述符接口描述符)
+    - [2.1 设备描述符](#21-设备描述符)
+    - [2.2 配置描述符](#22-配置描述符)
+    - [2.3 端点描述](#23-端点描述)
+    - [2.4 usbd\_conf.c USBD\_StatusTypeDef USBD\_LL\_Init(USBD\_HandleTypeDef \*pdev) 函数需要修改](#24-usbd_confc-usbd_statustypedef-usbd_ll_initusbd_handletypedef-pdev-函数需要修改)
+    - [2.4 初始化 USB](#24-初始化-usb)
+- [如何使用 Wireshark 排查 USB MSC 通信存在的问题](#如何使用-wireshark-排查-usb-msc-通信存在的问题)
+  - [1. 代码分析，问题出现在哪一层？](#1-代码分析问题出现在哪一层)
+  - [2. Keil Debug 先确定大体范围](#2-keil-debug-先确定大体范围)
+  - [3. Wireshark 抓包分析](#3-wireshark-抓包分析)
+  - [4. 问题已经定位，如何解决？](#4-问题已经定位如何解决)
+  - [5. 修改，编译下载验证](#5-修改编译下载验证)
 
 
 ## 如何实现 CDC-MSC 复合设备？
@@ -173,9 +188,9 @@ USBD_StatusTypeDef USBD_RegisterClassComposite(USBD_HandleTypeDef *pdev, USBD_Cl
 
 | CDC                                                                  | MSC                                                                 |
 | --- | --- |
-| pdev->pClass[0] = USBD_CDC_CLASS;                                    | pdev->pClass[1] = USBD_MSC_CLASS;                                   |
+|  pdev->pClass[0] = USBD_CDC_CLASS;                                    | pdev->pClass[1] = USBD_MSC_CLASS;                                   |
 | pdev->tclasslist[0].EpAdd = CDC_EpAdd_Inst1;                         | pdev->tclasslist[1].EpAdd = MSC_EpAdress;                           |
-| (void)USBD_CMPSIT_AddClass(pdev, USBD_CDC_CLASS, CLASS_TYPE_CDC, 0); | (void)USBD_CMPSIT_AddClass(pdev,USBD_MSC_CLASS, CLASS_TYPE_MSC, 0); |
+| (void)USBD_CMPSIT_AddClass(pdev, USBD_CDC_CLASS, CLASS_TYPE_CDC, 0); | (void)USBD_CMPSIT_AddClass(pdev, USBD_MSC_CLASS, CLASS_TYPE_MSC, 0); |
 | pdev->pUserData[**1**] = fops;                                       | pdev->pUserData[**2**] = fops;                                      |
 
 <br/>显然 pUserData Index 和其他参数无法对应，这会导致程序运行之后 crash. 
@@ -199,7 +214,7 @@ if (USBD_CMPSIT_SetClassID(&hUsbDeviceFS, CLASS_TYPE_MSC, 0) != 0xFF)
 
 然而，如 2.4 所介绍，USBD_StatusTypeDef USBD_LL_Init() 函数的修改出现了错误，导致 MSC 接口异常，连接 Windows PC 后，看到的如下：
 <!-- ![usb-cdc-msc-wrong](/assets/image/usb-cdc-msc-wrong.png) <br> -->
-<img src="/assets/image/usb-cdc-msc-wrong.png" alt="usb-cdc-msc-wrong" width="324" height="460">
+<br/><img src="/assets/image/usb-cdc-msc-wrong.png" alt="usb-cdc-msc-wrong" width="324" height="460"><br/>
 
 那么，如何排查问题呢？
 
@@ -207,7 +222,7 @@ if (USBD_CMPSIT_SetClassID(&hUsbDeviceFS, CLASS_TYPE_MSC, 0) != 0xFF)
 ### 1. 代码分析，问题出现在哪一层？
 ST USB library 接入 MSC 设备时的结构如图
 <!-- ![usb-msc-st-structure](/assets/image/usbd_storage_if_for_MSC.png) -->
-<img src="/assets/image/usbd_storage_if_for_MSC.png" alt="usbd_storage_if_for_MSC" width="404" height="166">
+<br/><img src="/assets/image/usbd_storage_if_for_MSC.png" alt="usbd_storage_if_for_MSC" width="404" height="166"><br/>
 
 根据“2.4初始化 USB” `void MX_USB_DEVICE_Init(void)`，MSC 初始化分4步：
 1. 初始化USBD内核
@@ -242,11 +257,11 @@ USBD_StorageTypeDef USBD_DISK_fops = {
 
 对于 Windows USB 发出的 SCSI Inquiry 命令，MSC 单独设备回复：
 <!-- ![wireshark-usb-right](/assets/image/wireshark-usb-right.png) <br/> -->
-<img src="/assets/image/wireshark-usb-right.png" alt="wireshark-usb-right" width="512" height="306">
+<br/><img src="/assets/image/wireshark-usb-right.png" alt="wireshark-usb-right" width="512" height="306"><br/>
 
 而 MSC+CDC 复合设备的回复：
 <!-- ![wireshark-usb-wrong](/assets/image/wireshark-usb-wrong.png) <br/> -->
-<img src="../../assets/image/wireshark-usb-wrong.png" alt="wireshark-usb-wrong" width="512" height="306">
+<br/><img src="/assets/image/wireshark-usb-wrong.png" alt="wireshark-usb-wrong" width="512" height="306"><br/>
 
 显然问题出在这里，复合设备回复的长度信息错误。
 
@@ -267,10 +282,10 @@ USBD_StorageTypeDef USBD_DISK_fops = {
 ### 5. 修改，编译下载验证
 修改后，编译下载，验证通过，CDC 能正常模拟串口通信，MSC 存储设备正常，问题解决。<br/>
 <!-- ![usb-cdc-msc-good](/assets/image/usb-cdc-msc-good.png) <br/> -->
-<img src="/assets/image/usb-cdc-msc-good.png" alt="usb-cdc-msc-good" width="360" height="408">
+<br/><img src="/assets/image/usb-cdc-msc-good.png" alt="usb-cdc-msc-good" width="360" height="408">
 <br/>
 <!-- ![this-compute-demostration](/assets/image/this-compute-demostration.png) <br/> -->
-<img src="../../assets/image/this-compute-demostration.png" alt="this-compute-demostration" width="384" height="288">
+<img src="/assets/image/this-compute-demostration.png" alt="this-compute-demostration" width="384" height="288">
 
 
 
